@@ -3,6 +3,8 @@
             [clojure.data.json :as json])
   (:gen-class :main true))
 
+(def config-path (str (System/getProperty "user.home") "/.docker/config.json"))
+
 (def valid-columns #{"ID"
                      "Image"
                      "Command"
@@ -29,11 +31,9 @@
     (string/join (concat [prefix] (map go-template-property args)))))
 
 (defn update-ps-format [s]
-  (let [path (str (System/getProperty "user.home") "/.docker/config.json")
-        config (json/read-str (slurp path) :key-fn str)]
-    (println s)
+  (let [config (json/read-str (slurp config-path) :key-fn str)]
     (spit 
-      path 
+      config-path 
       (json/write-str (conj config {"psFormat" s})))))
 
 (defn help []
