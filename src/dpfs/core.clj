@@ -1,4 +1,4 @@
-(ns cli-test.core
+(ns dpfs.core
   (:require [clojure.string :as string]
             [clojure.data.json :as json])
   (:gen-class :main true))
@@ -23,12 +23,12 @@
   {:default ["ID" "Image" "Command" "CreatedAt" "Status" "Ports" "Names"]
     :short ["Names" "Image" "Status"]})
 
-(defn go-template-property [s]
+(defn go-template [s]
   (str "{{" "." s "}}" "\\t"))
 
 (defn get-fmt-string [& cols]
   "args should be column headers (e.g. Names, Image), outputs a psFormat table string"
-  (string/join (concat ["table "] (map go-template-property cols))))
+  (string/join (concat ["table "] (map go-template cols))))
 
 (defn write-ps-format [s]
   (let [config (json/read-str (slurp config-path) :key-fn str)]
@@ -56,19 +56,20 @@
 (defn valid-column? [col]
   (valid-columns (str col)))
 
+(defn format-with-cols [cols]
+  (->> cols (apply get-fmt-string) (write-ps-format)))
+
 (defn run
   ([] (exit 0 (help)))
   ([arg] (let [help-queries #{"-h" "--help" "help"}]
           (cond
             (help-queries arg) (exit 0 (help))
-            (style-to-columns (keyword arg)) (->> (style-to-columns (keyword arg))
-                                                  (apply get-fmt-string)
-                                                  (write-ps-format))
-            (valid-column? arg) (write-ps-format (get-fmt-string arg))
+            (style-to-columns (keyword arg)) (format-with-cols (style-to-columns (keyword arg)))
+            (valid-column? arg) (format-with-cols [arg])
             :else (exit 1 (help)))))
   ([arg & args] (let [cols (conj args arg)]
                   (cond
-                    (every? valid-column? cols) (write-ps-format (apply get-fmt-string cols))
+                    (every? valid-column? cols) (format-with-cols cols)
                     :else (exit 1 (string/join \newline ["All args must be valid columns" (help)]))))))
 
 (defn -main [& args] (apply run args))
