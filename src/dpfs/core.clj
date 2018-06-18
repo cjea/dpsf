@@ -72,10 +72,11 @@
 
 (defn run
   ([] (exit 0 (help)))
-  ([arg] (let [help-queries #{"-h" "--help" "help"}]
+  ([arg] (let [help-queries #{"-h" "--help" "help"}
+               style-template-cols (style-to-columns (keyword arg))]
           (cond
             (help-queries arg) (exit 0 (help))
-            (style-to-columns (keyword arg)) (format-with-cols (style-to-columns (keyword arg)))
+            style-template-cols (format-with-cols style-template-cols)
             (valid-column? arg) (format-with-cols [arg])
             :else (exit 1 (help)))))
   ([arg & args] (let [cols (conj args arg)]
