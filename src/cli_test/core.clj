@@ -19,18 +19,18 @@
                      "Networks"
                      "Names"})
 
-(def style-to-columns {:default ["ID" "Image" "Command" "CreatedAt" "Status" "Ports" "Names"]
-                        :short ["Names" "Image" "Status"]})
+(def style-to-columns 
+  {:default ["ID" "Image" "Command" "CreatedAt" "Status" "Ports" "Names"]
+    :short ["Names" "Image" "Status"]})
 
 (defn go-template-property [s]
   (str "{{" "." s "}}" "\\t"))
 
-(defn get-fmt-string [& args]
-  "takes a list of column headers, (e.g. Names, Image) and outputs a psFormat table string"
-  (let [prefix "table "]
-    (string/join (concat [prefix] (map go-template-property args)))))
+(defn get-fmt-string [& cols]
+  "args should be column headers (e.g. Names, Image), outputs a psFormat table string"
+  (string/join (concat ["table "] (map go-template-property cols))))
 
-(defn update-ps-format [s]
+(defn write-ps-format [s]
   (let [config (json/read-str (slurp config-path) :key-fn str)]
     (spit 
       config-path 
@@ -63,12 +63,12 @@
             (help-queries arg) (exit 0 (help))
             (style-to-columns (keyword arg)) (->> (style-to-columns (keyword arg))
                                                   (apply get-fmt-string)
-                                                  (update-ps-format))
-            (valid-column? arg) (update-ps-format (get-fmt-string arg))
+                                                  (write-ps-format))
+            (valid-column? arg) (write-ps-format (get-fmt-string arg))
             :else (exit 1 (help)))))
   ([arg & args] (let [cols (conj args arg)]
                   (cond
-                    (every? valid-column? cols) (update-ps-format (apply get-fmt-string cols))
+                    (every? valid-column? cols) (write-ps-format (apply get-fmt-string cols))
                     :else (exit 1 (string/join \newline ["All args must be valid columns" (help)]))))))
 
 (defn -main [& args] (apply run args))
