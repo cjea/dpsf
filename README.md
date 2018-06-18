@@ -1,6 +1,6 @@
-# dpfs
+# dpsf
 
-dpfs is an easy way to format docker ps output
+dpsf is an easy way to format docker ps output
 
 ## Usage
 
@@ -35,9 +35,9 @@ cat <path to stub.sh> <path to standalone jar> > dpsf && chmod u+x dpsf
 Use as such:
 
 ```
-dpfs Names Image CreatedAt
+dpsf Names Image CreatedAt
 ```
 
 ```
-dpfs default
+dpsf default
 ```
