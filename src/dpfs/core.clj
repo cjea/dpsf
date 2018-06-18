@@ -74,11 +74,3 @@
 
 (defn -main [& args] (apply run args))
 
-;; dpsf -> help
-;; dpsf help -> help
-;; dpsf default
-;; dpsf Names
-;; dpsf Names Image
-;; dpsf columns
-;; dpsf styles
-
